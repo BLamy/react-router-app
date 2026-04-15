@@ -35,6 +35,9 @@ jobs:
       - name: Install Replay Chromium
         run: npx replayio install
 
+      - name: Install Replay CLI
+        run: npm install -g @replayio/replay@latest
+
       - run: pnpm run build
 
       - name: Start server
@@ -65,7 +68,7 @@ jobs:
           echo "Replay directory contents:"
           find "$RECORD_REPLAY_DIRECTORY" -maxdepth 5 -type f | sort
 
-          RECORDING_JSON="$(npx @replayio/replay ls --directory "$RECORD_REPLAY_DIRECTORY" --json 2>/dev/null || true)"
+          RECORDING_JSON="$(replay ls --directory "$RECORD_REPLAY_DIRECTORY" --all --json 2>/dev/null || true)"
           echo "Replay metadata: $RECORDING_JSON"
 
           if [ -z "$RECORDING_JSON" ] || [ "$RECORDING_JSON" = "null" ] || [ "$RECORDING_JSON" = "[]" ]; then
@@ -84,7 +87,7 @@ jobs:
             exit 0
           fi
 
-          npx @replayio/replay upload-all \
+          replay upload-all \
             --directory "$RECORD_REPLAY_DIRECTORY" \
             --api-key "$RECORD_REPLAY_API_KEY" \
             --filter 'function($v) { $v.metadata.test.result = "failed" }'
@@ -98,7 +101,7 @@ jobs:
           BASE_BRANCH: ${{ github.head_ref || github.ref_name }}
         run: |
           # Get recording IDs from local replay recordings
-          RECORDING_IDS=$(npx @replayio/replay ls --directory "$RECORD_REPLAY_DIRECTORY" --filter 'function($v) { $v.metadata.test.result = "failed" }' --json 2>/dev/null | jq -r '.[].id' || true)
+          RECORDING_IDS=$(replay ls --directory "$RECORD_REPLAY_DIRECTORY" --all --filter 'function($v) { $v.metadata.test.result = "failed" }' --json 2>/dev/null | jq -r '.[].id' || true)
 
           if [ -z "$RECORDING_IDS" ]; then
             echo "No recordings found, skipping analysis"
