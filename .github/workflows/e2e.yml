@@ -12,34 +12,38 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+          cache: pnpm
 
-      - run: npm ci
+      - run: pnpm install --frozen-lockfile
 
-      - run: npx playwright install --with-deps chromium
+      - run: pnpm exec playwright install --with-deps chromium
 
       - name: Install Replay Chromium
-        run: npx replayio install
+        run: pnpm exec replayio install
 
-      - run: npm run build
+      - run: pnpm run build
 
       - name: Start server
-        run: PORT=4321 npm run start &
+        run: PORT=4321 pnpm run start &
 
       - name: Wait for server
-        run: npx wait-on http://localhost:4321
+        run: pnpm exec wait-on http://localhost:4321
 
       - name: Run E2E tests with Replay
-        run: npx playwright test --project replay-chromium --reporter=@replayio/playwright/reporter,line
+        run: pnpm exec playwright test --project replay-chromium --reporter=@replayio/playwright/reporter,line
 
       - name: Upload failed replays to Replay.io
         if: always()
         uses: replayio/action-upload@v0.5.1
         with:
-          api-key: ${{ secrets.REPLAY_API_KEY }}
+          api-key: ${{ secrets.RECORD_REPLAY_API_KEY }}
           filter: "function($v) { $v.metadata.test.result = \"failed\" }"
 
       - uses: actions/upload-artifact@v4
