@@ -48,7 +48,7 @@ export default function Todos() {
   }
 
   function deleteTodo(id: number) {
-    setTodos((prev) => prev.filter((t) => t.id !== id))
+    // Bug: does nothing instead of deleting
   }
 
   return (
