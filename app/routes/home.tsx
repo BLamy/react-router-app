@@ -1,3 +1,4 @@
+import { Link } from "react-router"
 import { Button } from "~/components/ui/button"
 
 export default function Home() {
@@ -9,6 +10,11 @@ export default function Home() {
           <p>You may now add components and start building.</p>
           <p>We&apos;ve already added the button component for you.</p>
           <Button className="mt-2">Button</Button>
+          <div className="mt-4">
+            <Link to="/todos" className="text-primary underline">
+              Go to Todos
+            </Link>
+          </div>
         </div>
       </div>
     </div>
