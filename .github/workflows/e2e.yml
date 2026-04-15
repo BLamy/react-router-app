@@ -24,7 +24,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Install Replay Chromium
-        run: pnpm exec replayio install
+        run: npx replayio install
 
       - run: pnpm run build
 
@@ -32,7 +32,7 @@ jobs:
         run: PORT=4321 pnpm run start &
 
       - name: Wait for server
-        run: pnpm exec wait-on http://localhost:4321
+        run: npx wait-on http://localhost:4321
 
       - name: Run E2E tests with Replay
         run: pnpm exec playwright test --project replay-chromium --reporter=@replayio/playwright/reporter,line
