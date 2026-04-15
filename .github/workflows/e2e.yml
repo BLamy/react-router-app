@@ -55,6 +55,8 @@ jobs:
         env:
           RECORD_REPLAY_API_KEY: ${{ secrets.RECORD_REPLAY_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
+          BASE_BRANCH: ${{ github.head_ref || github.ref_name }}
         run: |
           # Get recording IDs from local replay recordings
           RECORDING_IDS=$(npx @replayio/replay ls --json 2>/dev/null | jq -r '.[].id' || true)
@@ -113,8 +115,7 @@ jobs:
           # Create PR
           gh pr create \
             --title "fix: auto-fix failing E2E tests" \
-            --body "$(cat <<'PREOF'
-          ## Summary
+            --body "## Summary
           Automated fix for failing E2E tests based on Replay.io recording analysis.
 
           - Replay.io analyzed the test failures
@@ -124,12 +125,8 @@ jobs:
           - [ ] Review the changes
           - [ ] Verify E2E tests pass on this branch
 
-          🤖 Generated automatically by CI
-          PREOF
-          )" \
-            --base "${{ github.head_ref || github.ref_name }}"
-        env:
-          GH_TOKEN: ${{ github.token }}
+          Generated automatically by CI" \
+            --base "$BASE_BRANCH"
 
       - uses: actions/upload-artifact@v4
         if: always()
