@@ -23,8 +23,6 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm exec playwright install --with-deps chromium
-
       - name: Install Replay Chromium
         run: pnpm exec replayio install
 
