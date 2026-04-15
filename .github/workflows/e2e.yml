@@ -41,6 +41,9 @@ jobs:
       - name: Run E2E tests with Replay
         id: tests
         continue-on-error: true
+        env:
+          RECORD_REPLAY_API_KEY: ${{ secrets.RECORD_REPLAY_API_KEY }}
+          RECORD_ALL_CONTENT: 1
         run: pnpm exec playwright test --project replay-chromium --reporter=@replayio/playwright/reporter,line
 
       - name: Upload failed replays to Replay.io
