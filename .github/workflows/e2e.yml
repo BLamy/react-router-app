@@ -40,30 +40,14 @@ jobs:
       - name: Wait for server
         run: npx wait-on http://localhost:4321
 
-      - name: Generate Replay test run ID
-        id: replay-test-run-id
-        run: |
-          echo "value=$(node -e 'process.stdout.write(require(\"node:crypto\").randomUUID())')" >> "$GITHUB_OUTPUT"
-
       - name: Run E2E tests with Replay
         id: tests
         continue-on-error: true
         env:
-          RECORD_REPLAY_TEST_RUN_ID: ${{ steps.replay-test-run-id.outputs.value }}
+          REPLAY_API_KEY: ${{ secrets.RECORD_REPLAY_API_KEY }}
         run: |
           npx replayio install
-          pnpm exec playwright test \
-            --project replay-chromium \
-            --reporter=line,@replayio/playwright/reporter
-
-      - name: Upload failed replays to Replay.io
-        if: always()
-        env:
-          RECORD_REPLAY_DIRECTORY: ${{ env.RECORD_REPLAY_DIRECTORY }}
-        uses: replayio/action-upload@v0.5.1
-        with:
-          api-key: ${{ secrets.RECORD_REPLAY_API_KEY }}
-          filter: 'function($v) { $v.metadata.test.result = "failed" }'
+          pnpm exec playwright test --project replay-chromium
 
       - name: Fail if tests failed
         if: steps.tests.outcome == 'failure'

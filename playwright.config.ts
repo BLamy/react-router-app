@@ -1,6 +1,9 @@
 import { defineConfig } from "@playwright/test"
 import { devices as replayDevices, replayReporter } from "@replayio/playwright"
 
+const replayApiKey =
+  process.env.REPLAY_API_KEY || process.env.RECORD_REPLAY_API_KEY
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -8,8 +11,8 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: [
     replayReporter({
-      apiKey: process.env.REPLAY_API_KEY || process.env.RECORD_REPLAY_API_KEY,
-      upload: false,
+      apiKey: replayApiKey,
+      upload: Boolean(replayApiKey),
     }),
     ["line"],
   ],
