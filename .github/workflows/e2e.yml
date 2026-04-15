@@ -13,6 +13,8 @@ permissions:
 jobs:
   e2e:
     runs-on: ubuntu-latest
+    env:
+      RECORD_REPLAY_DIRECTORY: ${{ github.workspace }}/.replay
     steps:
       - uses: actions/checkout@v4
 
@@ -40,7 +42,8 @@ jobs:
 
       - name: Generate Replay test run ID
         id: replay-test-run-id
-        run: echo "value=$(node -p 'require(\"node:crypto\").randomUUID()')" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "value=$(node -e 'process.stdout.write(require(\"node:crypto\").randomUUID())')" >> "$GITHUB_OUTPUT"
 
       - name: Run E2E tests with Replay
         id: tests
@@ -55,6 +58,8 @@ jobs:
 
       - name: Upload failed replays to Replay.io
         if: always()
+        env:
+          RECORD_REPLAY_DIRECTORY: ${{ env.RECORD_REPLAY_DIRECTORY }}
         uses: replayio/action-upload@v0.5.1
         with:
           api-key: ${{ secrets.RECORD_REPLAY_API_KEY }}
